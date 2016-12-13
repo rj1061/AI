@@ -2,6 +2,11 @@ import pandas
 from sklearn.feature_extraction import DictVectorizer
 from sklearn import linear_model
 
+def checkNaN(value):
+    if (pandas.isnull(value)):
+        return 0
+    return value
+
 class Provider:
 
     def learn(self):
@@ -75,6 +80,10 @@ class Provider:
             train_csv[76][p] = float(train_csv[76][p])  # MoSold
             train_csv[77][p] = float(train_csv[77][p])  # YrSold
             train_csv[80][p] = float(train_csv[80][p])  # SalePrice
+
+        for i in range(0,80):
+            for j in range(1, train_csv.shape[0]):
+                train_csv[i][j] = checkNaN(train_csv[i][j])
 
         return train_csv
 
