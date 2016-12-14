@@ -10,7 +10,6 @@ def findMax(x):
     for i in range(1, len(x)-1):
         if max < x[i]:
             max = x[i]
-
     return max
 
 
@@ -19,7 +18,6 @@ def findMin(x):
     for i in range(1, len(x) - 1):
         if min > x[i]:
             min = x[i]
-
     return min
 
 def checkNaN(value):
@@ -35,7 +33,6 @@ class Provider:
             min = findMin(x[i])
             for j in range(0, len(x[i])-1):
                 x[i][j] = (x[i][j]-min)/(max-min)
-
         return x
 
     def normalizeY(self, y):
@@ -43,7 +40,6 @@ class Provider:
         min = findMin(y)
         for i in range(0, len(y)-1):
             y[i] = (y[i] - min) / (max - min)
-
         return y
 
     def LinearRegression(self, x, y, alpha):
@@ -110,22 +106,15 @@ class Provider:
     def learn(self):
         train_values, train_labels = self.get_data()
 
-        # -------------------------- Ridge Regression -------------------------
-        print "\n Ridge Regression \n"
-      #  reg = linear_model.Ridge(alpha = 0.25)
-       # reg.fit(train_values, train_labels)
-
-        # -------------------------- Linear Regression -------------------------
-        print "\n Linear Regression \n"
-        #reg = linear_model.LinearRegression()
-        #reg.fit(train_values, train_labels)
-
         print "\n Linear Regression Implementation\n"
-        w = self.LinearRegression(train_values, train_labels, .1)
-        #print w
+        self.LinearRegression(train_values, train_labels, .1)
+        reg = linear_model.LinearRegression()
+        print reg.fit(train_values, train_labels).score(train_values, train_labels)
 
-        print "\n Linear Regression Implementation\n"
-        w = self.RidgeRegression(train_values, train_labels, .05, 0.05)
+        print "\n Ridge Regression Implementation\n"
+        self.RidgeRegression(train_values, train_labels, .1, 0.1)
+        reg = linear_model.Ridge(alpha=0.25)
+        print reg.fit(train_values, train_labels).score(train_values, train_labels)
 
     def get_data(self):
         train_labels = []
