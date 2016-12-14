@@ -3,6 +3,7 @@ import numpy as np
 
 from sklearn.feature_extraction import DictVectorizer
 from sklearn import linear_model
+from sklearn import preprocessing
 
 def findMax(x):
     max = x[0]
@@ -46,34 +47,63 @@ class Provider:
         return y
 
     def LinearRegression(self, x, y, alpha):
-        x = self.normalize(x)     #verify to see if this is correct
-        y = self.normalizeY(y)
+        x = preprocessing.normalize(x)     # Verify to see if this is correct
+        y = preprocessing.normalize(y)
 
         # transpose the price matrix
-        y = np.array([y]).T
-
-        print x
+        y = y.T
 
         l = len(x)
         n = len(x[0])
-        temp = np.ones(shape=(l, n))
-        temp[:, 1] = x[:, 0]            # i think this might be the problem
-        x = temp
+        x = np.append(x, np.ones(shape=(l,1)),axis=1)
 
 
 
-        #initialise weights
-        w = np.array([np.ones(n)]).T
+        # Initialize weights
+        w = np.random.rand(1, n + 1).T
 
-        n = len(y)     # gradient descent
+        n = len(y)     # Gradient Descent
 
         for i in range(0, 10):
-            J = np.sum((x.dot(w) - y) ** 2)/(2*n)
+            inner = x.dot(w)
+            J = np.sum((inner - y) ** 2)/(2*n)
 
             print("Iteration %d, J(w): %f\n" % (i, J))
 
-            gradient = np.dot(x.T, x.dot(w)-y)/n
+            df = x.T
+
+            gradient = df.dot(x.dot(w)-y)/n #np.dot(df, x.dot(w)-y)/n
             w = w - alpha * gradient
+
+        return w
+
+    def RidgeRegression(self, x, y, alpha, penalty):
+        x = preprocessing.normalize(x)  # Verify to see if this is correct
+        y = preprocessing.normalize(y)
+
+        # transpose the price matrix
+        y = y.T
+
+        l = len(x)
+        n = len(x[0])
+        x = np.append(x, np.ones(shape=(l, 1)), axis=1)
+
+        # Initialize weights
+        w = np.random.rand(1, n + 1).T
+
+        n = len(y)  # Gradient Descent
+
+        for i in range(0, 10):
+            inner = x.dot(w)
+            J = np.sum((inner - y) ** 2) / (2 * n)
+
+            print("Iteration %d, J(w): %f\n" % (i, J))
+
+            df = x.T
+
+            gradient = df.dot(x.dot(w) - y) / n  # np.dot(df, x.dot(w)-y)/n
+            lasso = w ** 2
+            w = w - (alpha * gradient)-(penalty * lasso)
 
         return w
 
@@ -91,8 +121,11 @@ class Provider:
         #reg.fit(train_values, train_labels)
 
         print "\n Linear Regression Implementation\n"
-        w = self.LinearRegression(train_values, train_labels, .05)
+        w = self.LinearRegression(train_values, train_labels, .1)
         #print w
+
+        print "\n Linear Regression Implementation\n"
+        w = self.RidgeRegression(train_values, train_labels, .05, 0.05)
 
     def get_data(self):
         train_labels = []
@@ -111,7 +144,7 @@ class Provider:
 
     def get_data_csv(self):
         # Read from csv
-        train_csv = pandas.read_csv("train.csv", sep=',', header=None, nrows = 20)
+        train_csv = pandas.read_csv("train.csv", sep=',', header=None)
         x = 0
         for p in range(1, train_csv.shape[0]):
             train_csv[0][p] = float(train_csv[0][p])  # ID
@@ -152,9 +185,6 @@ class Provider:
             train_csv[76][p] = float(train_csv[76][p])  # MoSold
             train_csv[77][p] = float(train_csv[77][p])  # YrSold
             train_csv[80][p] = float(train_csv[80][p])  # SalePrice
-            if x > 20:
-                break
-            x+=1
 
         for i in range(0,80):
             for j in range(1, train_csv.shape[0]):
